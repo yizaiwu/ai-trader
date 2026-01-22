@@ -53,9 +53,9 @@ class TurtleTradingStrategy(BaseStrategy):
 
         # self.ATR = bt.ind.MovingAverageSimple(self.TR, period=self.p.entry_breakout, subplot=False)
 
-        # Calculate ATR using talib. Install with python3 -m pip install TA-Lib
-        self.ATR = bt.talib.ATR(
-            self.high, self.low, self.close, timeperiod=self.p.long_period, subplot=True
+        # Calculate ATR using native Backtrader indicator
+        self.ATR = bt.indicators.ATR(
+            self.datas[0], period=self.p.long_period, subplot=True
         )
 
     def next(self):

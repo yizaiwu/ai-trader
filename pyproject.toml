@@ -7,7 +7,7 @@ name = "ai-trader"
 version = "0.3.3"
 description = "Backtrader-powered backtesting framework for algorithmic trading, featuring 20+ strategies, multi-market support, CLI tools, and an integrated MCP server for professional traders."
 readme = "README.md"
-requires-python = ">=3.11,<4.0"
+requires-python = ">=3.12,<4.0"
 license = {text = "GPL-3.0"}
 authors = [
     {name = "Will Chien", email="locriginal@gmail.com"}
@@ -29,11 +29,11 @@ classifiers = [
 dependencies = [
     "backtrader==1.9.78.123",
     "pandas>=2.0.0,<3.0.0",
-    "numpy>=1.24.0,<2.0.0",
+    "numpy>=1.24.0",
     "matplotlib>=3.7.0,<4.0.0",
     "yfinance>=0.2.0",
     "twstock>=1.4.0",
-    "TA-Lib>=0.4.0",
+    "pandas-ta>=0.3.14b0",
     "statsmodels>=0.14.0",
     "scipy>=1.10.0",
     "lxml>=5.2.2",
@@ -86,7 +86,7 @@ exclude = ["tests*", "docs*", "notebooks*"]
 # Ruff configuration
 [tool.ruff]
 line-length = 100
-target-version = "py311"
+target-version = "py312"
 exclude = [
     ".git",
     ".venv",
@@ -157,7 +157,7 @@ exclude_lines = [
 
 # Mypy configuration
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.12"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = false  # Start permissive, will enable later
@@ -172,7 +172,6 @@ module = [
     "backtrader.*",
     "twstock.*",
     "yfinance.*",
-    "talib.*",
     "statsmodels.*",
     "matplotlib.*",
 ]

@@ -3,7 +3,7 @@ beautifulsoup4==4.12.3
 certifi==2024.7.4
 charset-normalizer==3.3.2
 click==8.1.7
-contourpy==1.1.1
+contourpy>=1.1.1
 cycler==0.12.1
 fonttools==4.60.2
 frozendict==2.4.4
@@ -15,9 +15,9 @@ lxml==5.2.2
 matplotlib==3.7.5
 multitasking==0.0.11
 mypy-extensions==1.0.0
-numpy==1.24.4
+numpy==2.2.6
 packaging==24.0
-pandas==2.0.3
+pandas>=2.3.2
 pathspec==0.12.1
 patsy==0.5.6
 peewee==3.17.5
@@ -34,10 +34,10 @@ scipy==1.10.1
 six==1.16.0
 soupsieve==2.5
 statsmodels==0.14.1
-TA-Lib==0.4.31
+pandas-ta==0.4.71b0
 tomli==2.0.1
 twstock==1.4.0
-typing_extensions==4.11.0
+typing_extensions>=4.11.0
 tzdata==2024.1
 urllib3==2.6.0
 webencodings==0.5.1

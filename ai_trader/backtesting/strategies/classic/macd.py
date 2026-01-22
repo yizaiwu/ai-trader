@@ -24,18 +24,14 @@ class MACDStrategy(BaseStrategy):
     params = dict(fastperiod=12, slowperiod=22, signalperiod=8)
 
     def __init__(self):
-        kwargs = {
-            "fastperiod": self.p.fastperiod,
-            "fastmatype": bt.talib.MA_Type.EMA,
-            "slowperiod": self.p.slowperiod,
-            "slowmatype": bt.talib.MA_Type.EMA,
-            "signalperiod": self.p.signalperiod,
-            "signalmatype": bt.talib.MA_Type.EMA,
-        }
-
-        self.macd = bt.talib.MACDEXT(self.data0.close, **kwargs)
-        self.crossover = bt.indicators.CrossOver(self.macd.macd, self.macd.macdsignal, plot=False)
-        self.above = bt.And(self.macd.macd > 0.0, self.macd.macdsignal > 0.0)
+        self.macd = bt.indicators.MACDHisto(
+            self.data0.close,
+            period_me1=self.p.fastperiod,
+            period_me2=self.p.slowperiod,
+            period_signal=self.p.signalperiod,
+        )
+        self.crossover = bt.indicators.CrossOver(self.macd.macd, self.macd.signal, plot=False)
+        self.above = bt.And(self.macd.macd > 0.0, self.macd.signal > 0.0)
         self.buy_signal = bt.And(self.above, self.crossover == 1)
         self.sell_signal = self.crossover == -1
 
