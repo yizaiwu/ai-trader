@@ -1,61 +1,57 @@
-import backtrader as bt
+import pandas as pd
+import pandas_ta as ta
+from typing import Dict, Any, Optional
 
 from ai_trader.backtesting.strategies.base import BaseStrategy
 
-
-class NaiveSMAStrategy(BaseStrategy):
-    params = dict(period=15)
-
-    def __init__(self):
-        super().__init__()
-        self.sma = bt.indicators.MovingAverageSimple(self.data.close, period=self.params.period)
-        self.signal_buy = self.data.close > self.sma
-        self.signal_close = self.data.close < self.sma
-
-    def next(self):
-        if not self.position:
-            if self.signal_buy[0]:
-                self.buy()
-
-        else:
-            if self.signal_close[0]:
-                self.close()
-
-
 class CrossSMAStrategy(BaseStrategy):
-    params = dict(fast=5, slow=37)
+    """
+    Moving Average Crossover Strategy using pandas-ta.
+    """
+    def __init__(self, params: Optional[Dict[str, Any]] = None):
+        # Default params
+        if params is None:
+            params = {}
+        params.setdefault('fast', 5)
+        params.setdefault('slow', 37)
+        super().__init__(params)
 
-    def __init__(self):
-        super().__init__()
-        self.fast_ma = bt.indicators.SMA(
-            self.data.close, period=self.params.fast, plotname="fast_day_ma"
-        )
-
-        self.slow_ma = bt.indicators.SMA(
-            self.data.close, period=self.params.slow, plotname="slpw_day_ma"
-        )
-        self.crossover = bt.indicators.CrossOver(self.fast_ma, self.slow_ma)
-
-    def next(self):
-        if self.position.size == 0:
-            if self.crossover > 0:
-                self.buy()
-
-        if self.position.size > 0:
-            if self.crossover < 0:
-                self.close()
-
+    def generate_signals(self, df: pd.DataFrame) -> pd.DataFrame:
+        # Calculate indicators using pandas-ta
+        fast_sma = ta.sma(df['close'], length=self.params['fast'])
+        slow_sma = ta.sma(df['close'], length=self.params['slow'])
+        
+        df['fast_ma'] = fast_sma
+        df['slow_ma'] = slow_sma
+        
+        # Generate signals: 1 when fast crosses above slow, -1 when slow crosses above fast
+        df['signal'] = 0
+        
+        # Buy signal: fast > slow and fast was <= slow on previous bar
+        buy_cond = (df['fast_ma'] > df['slow_ma']) & (df['fast_ma'].shift(1) <= df['slow_ma'].shift(1))
+        # Sell signal: fast < slow and fast was >= slow on previous bar
+        sell_cond = (df['fast_ma'] < df['slow_ma']) & (df['fast_ma'].shift(1) >= df['slow_ma'].shift(1))
+        
+        df.loc[buy_cond, 'signal'] = 1
+        df.loc[sell_cond, 'signal'] = -1
+        
+        return df
 
 if __name__ == "__main__":
     from ai_trader.utils.backtest import run_backtest
-
-    # Run backtest with CrossSMAStrategy
-    results = run_backtest(
-        strategy=CrossSMAStrategy,
-        data_source=None,  # Use example data
+    import yfinance as yf
+    
+    # Example usage
+    data = yf.download("AAPL", start="2023-01-01")
+    # Yfinance returns multi-index columns sometimes, flatten if needed
+    if isinstance(data.columns, pd.MultiIndex):
+        data.columns = data.columns.get_level_values(0)
+    data.columns = [c.lower() for c in data.columns]
+        
+    result = run_backtest(
+        strategy_class=CrossSMAStrategy,
+        data_source=data,
         cash=1000000,
-        commission=0.001425,
-        strategy_params={"fast": 5, "slow": 37},
+        strategy_params={"fast": 10, "slow": 30}
     )
-
-    print("\nBacktest completed! Use cerebro.plot() to visualize results.")
+    print(f"Final Portfolio Value: ${result.final_value:,.2f}")
